@@ -1,0 +1,43 @@
+[
+  {
+    "id": 0,
+    "count": 10,
+    "participation": false
+  },
+  {
+    "id": 1,
+    "count": 12,
+    "participation": false
+  },
+  {
+    "id": 2,
+    "count": 15,
+    "participation": false
+  },
+  {
+    "id": 3,
+    "count": 19,
+    "participation": false
+  },
+  {
+    "id": 4,
+    "count": 20,
+    "participation": false
+  },
+  {
+    "id": 5,
+    "count": 3,
+    "participation": false
+  },
+  {
+    "id": 6,
+    "count": 1,
+    "participation": false
+  },
+  {
+    "id": 7,
+    "count": 4,
+    "participation": false
+  }
+
+]

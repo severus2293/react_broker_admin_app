@@ -1,0 +1,336 @@
+body{
+  min-width: 1240px;
+  min-height: 600px;
+  background-image: url("../assets/back_main.png");
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  background-repeat: no-repeat
+}
+
+div.changedatabox{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  margin-bottom: 30px;
+  margin-left: 800px;
+}
+p#timer{
+  margin-top: 60px ;
+  margin-left: 20px;
+}
+p.stockplabel.datachange{
+  margin-left: 50px;
+}
+div.flex_box{
+  margin-top: 7%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+div.contain_button{
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+h2 {
+  color: #747474;
+  font-family: Open Sans, sans-serif;
+}
+button.mainbutton{
+  cursor: pointer;
+  background-color: #272727;
+  width: 227px;
+  height: 393px;
+  line-height: 40px;
+  font-size: 20px;
+}
+label.brokerlabel{
+  float: left;
+  color: #FF652F;
+  font-size: 30px;
+  padding-right: 10px;
+
+}
+label.settinglabel{
+  float: left;
+  color: #FF652F;
+  font-size: 30px;
+
+
+}
+div.field {
+  clear:both; text-align:right;
+  margin-left: 10px;
+}
+div.field.namefield{
+ margin-top: 10px;
+}
+div.main{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 550px;
+  height: 110px;
+  float: left;
+  background: #747474;
+  padding: 5px;
+}
+div.settingsmain{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  width: 500px;
+  height: 300px;
+  float: left;
+  padding: 5px;
+}
+div.stockspage_box{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+div.mainstock{
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  height: 160px;
+  float: left;
+  padding: 5px;
+}
+h2#changecoursetitle{
+  color: #FFE400;
+}
+div.stockfield{
+  height: 30px;
+  display: flex;
+  flex-direction: row;
+}
+div.stockfield.numbuy{
+  margin-top: 60px;
+}
+.stockplabel{
+  color: #FF652F;
+  font-size: 20px;
+}
+th.stockstablehead{
+  color: #FF652F;
+  background-color: #747474;
+  font-size: 20px;
+}
+div.singlestock{
+  display: flex;
+  flex-direction: row;
+  border:1px solid #747474;
+}
+
+div.mainstock + div.databox{
+  margin-left: 60px;
+}
+div.graphic{
+  width: 900px;
+  background-color: #272727;
+  margin-bottom: 10px;
+  margin-right: 10px;
+}
+td.stockstablebody{
+  color: #14A76C;
+  background-color: #747474;
+  font-size: 20px;
+  text-align: center;
+}
+input.stocks_input{
+  background-color: #272727;
+  margin-left: 10px;
+  color: #14A76C;
+  width: 50px;
+  font-size: 17px;
+}
+input.stocks_input.numbargain{
+  width: 100px;
+  margin-left: 40px;
+  text-align: center;
+}
+input.stockscheck_input{
+  margin-left: 10px;
+  transform: scale(2);
+}
+div.countstock{
+  margin-top: 20px;
+}
+p.stock_p{
+  color: #14A76C;
+  font-size: 20px;
+  margin-left: 10px;
+}
+form + form {
+  margin-top: 10px;
+}
+div.box_form{
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #747474;
+  width: 600px;
+  height: 200px;
+}
+p.brokername_p{
+  background: #272727;
+  color: #14A76C;
+  width: 200px;
+}
+input.brokers_input{
+  text-align: center;
+  background-color: #272727;
+  color: #14A76C;
+  height: 30px;
+  font-size: 15px;
+}
+
+input.settings_input{
+  text-align: center;
+  background-color: #272727;
+  color: #14A76C;
+  height: 30px;
+  margin-top: 5px;
+  font-size: 15px;
+}
+input.settings_input.speed{
+  width: 120px
+}
+button.startbargbutton{
+  cursor: pointer;
+  border-radius: 100px;
+  width: 200px;
+  height: 50px;
+  color: #FFE400;
+  background-color: #272727;
+}
+button.exitbutton{
+  cursor: pointer;
+  width: 200px;
+  height: 50px;
+  color: #FFE400;
+  background-color: #272727;
+}
+button.exitbutton:hover{
+  background-color: green;
+}
+button.buybut{
+  cursor: pointer;
+  border-radius: 100px;
+  margin-top: 7%;
+  width: 200px;
+  height: 50px;
+  color: #FFE400;
+  background-color: #272727;
+}
+button.buybut:hover{
+  background-color: green;
+}
+button.startbargbutton:hover{
+  background-color: green;
+}
+div.brokers_box{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+div.brokerpage_box{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+div.settingspage_box{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+button.brokerbutton{
+  cursor: pointer;
+  border-radius: 100px;
+  margin-left: 10%;
+  margin-top: 2%;
+  width: 140px;
+  height: 50px;
+  color: #FFE400;
+  background-color: #272727;
+}
+
+
+
+button.brokerbutton.delbut:hover{
+  background-color: #980005;
+}
+
+button.brokerbutton.addbut:hover{
+  background-color: #259803;
+}
+
+
+
+
+button#settingbut{
+  color: #14A76C;
+}
+
+button#brokerbut{
+  color: #FF652F;
+}
+
+button#stockbut{
+  color:#FFE400;
+}
+
+button.mainbutton:hover{
+  background-color: white;
+}
+
+
+table{
+  display: table;
+  width: 100%;
+}
+table thead, table tbody {
+  float: left;
+  width: 100%;
+}
+table tbody {
+  overflow: auto;
+  height: 100px;
+}
+table tr {
+  width: 100%;
+  display: table;
+  text-align: center;
+}
+table th, table td {
+  width: 33%;
+}
+div.companytitle{
+display: flex;
+justify-content: space-between;
+}
+
+tbody::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+tbody::-webkit-scrollbar-track {
+  background: orange;
+  border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
