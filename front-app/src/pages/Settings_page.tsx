@@ -24,7 +24,7 @@ export function Settings_page(props: SettingProps){
 
             }
             else{
-                const r= await axios.post('http://localhost:3000/bargain-process/start_bargaing',{time: speedvalue,date: startdatevalue, start: true})
+                const r= await axios.post('http://localhost:3000/bargain-process/start_bargaing',{time: speedvalue,date: startdatevalue})
                 return true
             }
         }

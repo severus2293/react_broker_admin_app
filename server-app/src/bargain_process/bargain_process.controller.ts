@@ -29,26 +29,17 @@ export class BargainProcessController {
   @Post('start_bargaing')
   start_bargaing(@Body() body) {
 
-    process.start = body.start
     process.time = body.time
     const tmp = body.date.split('-');
     process.date = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
     var started = process.time;
-    /*if(process.start === false){
+    if (process.start === false) {
       process.start = true
-
-    }
-    *
-    *
-    * */
-    if (process.start) {
-      console.log('true')
-      const timer = setInterval(() => {
+      this.timer = setInterval(() => {
         if (process.time > 0) {
-                  process.time -= 1;
+          process.time -= 1;
           console.log(process.time);
-              }
-              else{
+        } else {
           let day = new Date(process.date);
 
           const offset = day.getTimezoneOffset();
@@ -58,12 +49,44 @@ export class BargainProcessController {
           process.date = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
           process.time = started;
         }
-       // const __dirname = path.resolve() + '/src/json_files';
-       /* fs.writeFileSync(
-          __dirname + '/bargaing_process.json',
-          JSON.stringify(process),
-        );*/
       }, 1000);
+    } else {
+      clearInterval(this.timer),
+          this.timer = setInterval(() => {
+            if (process.time > 0) {
+              process.time -= 1;
+              console.log(process.time);
+            } else {
+              let day = new Date(process.date);
+
+              const offset = day.getTimezoneOffset();
+              day = new Date(day.getTime() - offset * 60 * 1000);
+              day.setDate(day.getDate() + 1);
+              const tmp = day.toISOString().split('T')[0].split('-');
+              process.date = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
+              process.time = started;
+            }
+          }, 1000);
+      /*
+      if (process.start) {
+        console.log('true')
+        const timer = setInterval(() => {
+          if (process.time > 0) {
+                    process.time -= 1;
+            console.log(process.time);
+                }
+                else{
+            let day = new Date(process.date);
+
+            const offset = day.getTimezoneOffset();
+            day = new Date(day.getTime() - offset * 60 * 1000);
+            day.setDate(day.getDate() + 1);
+            const tmp = day.toISOString().split('T')[0].split('-');
+            process.date = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
+            process.time = started;
+          }
+        }, 1000);
+      }*/
     }
   }
   @Post('change_date')
