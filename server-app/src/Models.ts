@@ -2,6 +2,7 @@ export interface Ibroker{
   id: number;
     name: string;
   money: number;
+  active: boolean;
 }
 
 export interface Istockinfo{

@@ -28,6 +28,7 @@ interface StockProps{
     startdate: string,
     enddate: string,
     id: number,
+    socket: any
 }
 
 export function BargainStock(props: StockProps){
@@ -35,6 +36,9 @@ export function BargainStock(props: StockProps){
     const [indexdate,setindexdate] = useState(-1)
     const [date_array,setdatearray] = useState<string[]>([])
     const [price_array,setpricearray] = useState<string[]>([])
+    const [stock,setStock] = useState<Istock>()
+    const [cur_date,setCurdate] = useState(props.enddate)
+    const [countvalue,setCountValue] = useState(0)
     const [countbuyvalue,setcountbuy] = useState(0)
     const dispatch = useDispatch()
     const changebuycountHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -43,139 +47,74 @@ export function BargainStock(props: StockProps){
 
     }
     useEffect(() => {
-        updateGraphic()
-    })
-    function updateGraphic(){
-
-        var cur_d_ar = date_array
-        var cur_p_ar = price_array
-        var cur_date = props.startdate
-        if(indexdate === -1){
-            for(let i = props.stock.info.data.length - 1;i > 0;i--){
-
-                if(props.stock.info.data[i].Date === cur_date){
-                    setindexdate(i)
-                    cur_d_ar.push(props.stock.info.data[i].Date)
-                    cur_p_ar.push(props.stock.info.data[i].Open)
-                    setdatearray(cur_d_ar)
-                    setpricearray(cur_p_ar)
-                    if(cur_p_ar[cur_p_ar.length - 2] !== props.stock.info.data[i].Open){
-                        dispatch({type: "CHANGE_PRICE",index: props.id,val: props.stock.info.data[i].Open})
+        fetch('http://localhost:3000/stocks/stocks_bargaining')
+            .then(response => response.json())
+            .then(json =>{
+                for(let stock of json){
+                    if(stock.data.id === props.stock.data.id){
+                        setCountValue(stock.data.count)
+                        break
                     }
-                        return
+                }
+            })
+        props.socket.on('BargainStocks', (message) => {
+            for(let stock of message){
+                if(stock.data.id === props.stock.data.id){
+                    setCountValue(stock.data.count)
+                    break
                 }
             }
+        })
+        setCurdate(props.enddate)
+        renderInfArr(props.startdate)
+        props.socket.on('ChangeTime', (message) => {
+            var dat = message.date
+            if(dat >= cur_date){ //!==
+                renderInfArr(dat)
+            }
+        })},[])
+    function renderInfArr(date){
+        const datearr: string[] = []
+        const pricearr: string[] = []
+        var start = props.startdate
+        const end = date
+        console.log('akwgfds: '+ props.enddate)
+        // @ts-ignore
+        var index = props.stock.info.data.length - 1
+        // @ts-ignore
+        var a = new Date(props.stock.info.data[index].Date)
+        var b = new Date(start)
+        while(a < b){
+            index--;
+            let day = new Date(props.stock.info.data[index].Date);
+            const offset = day.getTimezoneOffset();
+            day = new Date(day.getTime() - offset * 60 * 1000);
+            day.setDate(day.getDate() + 1);
+            const tmp = day.toISOString().split('T')[0].split('-');
+            a = new Date('' + tmp[1] + '/' + tmp[2] + '/' + tmp[0]);
         }
-        else{
-            var iter = indexdate
-            if(date_array.length == 1 && props.startdate !== props.enddate){
-                var cur = cur_date.split('/')
-                let day = new Date('' + cur[2] + '-' + cur[0] + '-' + cur[1]);
-                var offset = day.getTimezoneOffset();
-                day = new Date(day.getTime() - offset * 60 * 1000);
-                day.setDate(day.getDate() + 1);
-                var tmp = day.toISOString().split('T')[0].split('-');
-                cur_date = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
-                while(cur_date !== props.enddate){
-                    if(cur_date === props.stock.info.data[iter-1].Date){
-                        cur_d_ar.push(props.stock.info.data[iter-1].Date)
-                        cur_p_ar.push(props.stock.info.data[iter-1].Open)
-                        iter-=1
-                        setindexdate(iter) // indexdate -1
-                        setdatearray(cur_d_ar)
-                        setpricearray(cur_p_ar)
-                    }
-                    else if(cur_date !== cur_d_ar[cur_d_ar.length-1]){
-                        console.log(cur_date)
-                        console.log(cur_d_ar[cur_d_ar.length-1])
-                        cur_d_ar.push(cur_date)
-                        cur_p_ar.push(cur_p_ar[cur_p_ar.length-1])
-                        setdatearray(cur_d_ar)
-                        setpricearray(cur_p_ar)
-                    }
-                    cur = cur_date.split('/')
-                    let day = new Date('' + cur[2] + '-' + cur[0] + '-' + cur[1]);
-                    const offset = day.getTimezoneOffset();
-                    day = new Date(day.getTime() - offset * 60 * 1000);
-                    day.setDate(day.getDate() + 1);
-                    const tmp = day.toISOString().split('T')[0].split('-');
-                    cur_date = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
-                }
-              //  setindexdate(indexdate - 1);
-                console.log('not here')
-                console.log(indexdate)
-                //cur = cur_date.split('/')
-               // day = new Date('' + cur[2] + '-' + cur[0] + '-' + cur[1]);
-               // offset = day.getTimezoneOffset();
-               // day = new Date(day.getTime() - offset * 60 * 1000);
-               // day.setDate(day.getDate() + 1);
-               //  tmp = day.toISOString().split('T')[0].split('-');
-               // cur_date = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
-                iter -= 1
-                setindexdate(iter)
-                console.log('данные восстановлены')
+        while(end >= start){
+            // @ts-ignore
+            if(props.stock.info.data[index].Date === start){     //если есть данные о дне в таблице
+                datearr.push(start);
+                // @ts-ignore
+                pricearr.push(props.stock.info.data[index].Open);
+                index--;
 
             }
-            /*if(date_array.length == 1){
-                console.log(props.enddate)
-                var cur = cur_date.split('/')
-                let day = new Date('' + cur[2] + '-' + cur[0] + '-' + cur[1]);
-                const offset = day.getTimezoneOffset();
-                day = new Date(day.getTime() - offset * 60 * 1000);
-                day.setDate(day.getDate() + 1);
-                const tmp = day.toISOString().split('T')[0].split('-');
-                cur_date = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
-               while(cur_date !== props.enddate){
-                   if(cur_date === props.stock.info.data[indexdate-1].Date){
-                       cur_d_ar.push(props.stock.info.data[indexdate-1].Date)
-                       cur_p_ar.push(props.stock.info.data[indexdate-1].Open)
-                       setindexdate(indexdate - 1)
-                       setdatearray(cur_d_ar)
-                       setpricearray(cur_p_ar)
-                   }
-                   else if(props.enddate !== cur_d_ar[cur_d_ar.length-1]){
-                       cur_d_ar.push(cur_date)
-                       cur_p_ar.push(cur_p_ar[cur_p_ar.length-1])
-                       setdatearray(cur_d_ar)
-                       setpricearray(cur_p_ar)
-                       return
-                   }
-                   cur = cur_date.split('/')
-                   let day = new Date('' + cur[2] + '-' + cur[0] + '-' + cur[1]);
-                   const offset = day.getTimezoneOffset();
-                   day = new Date(day.getTime() - offset * 60 * 1000);
-                   day.setDate(day.getDate() + 1);
-                   const tmp = day.toISOString().split('T')[0].split('-');
-                   cur_date = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
-               }
-            }*/
-
-            if(props.enddate === props.stock.info.data[iter-1].Date){
-                cur_d_ar.push(props.stock.info.data[iter-1].Date)
-                cur_p_ar.push(props.stock.info.data[iter-1].Open)
-                iter -= 1 //
-                setindexdate(iter) //indexdate - 1
-                setdatearray(cur_d_ar)
-                setpricearray(cur_p_ar)
-                return
+            else{
+                datearr.push(start);
+                pricearr.push(pricearr[pricearr.length-1]);
             }
-            else if(props.enddate !== cur_d_ar[cur_d_ar.length-1] && props.enddate !== props.stock.info.data[iter-1].Date){
-                console.log('why?')
-                console.log(`текущая дата:`+props.id +' '+ props.enddate)
-                console.log('дата из данных: ' + props.stock.info.data[iter-1].Date)
-                console.log(indexdate)
-                console.log(iter)
-                cur_d_ar.push(props.enddate)
-                cur_p_ar.push(cur_p_ar[cur_p_ar.length-1])
-                setdatearray(cur_d_ar)
-                console.log(date_array)
-                setpricearray(cur_p_ar)
-                return
-            }
-
-
+            let day = new Date(start);
+            const offset = day.getTimezoneOffset();
+            day = new Date(day.getTime() - offset * 60 * 1000);
+            day.setDate(day.getDate() + 1);
+            const tmp = day.toISOString().split('T')[0].split('-');
+            start = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
         }
-
+        setpricearray(pricearr)
+        setdatearray(datearr)
     }
     return(
         <div className={'singlestock'} key={'singlebargainstock: ' + props.stock.data.id}>
@@ -198,7 +137,7 @@ export function BargainStock(props: StockProps){
                     <p className={'stockplabel'}>
                         Количество акций:
                     </p>
-                    <p className={'stock_p'}   id = {"countstockfold: " + props.stock.data.id}  key={"titlestockfold: " + props.stock.data.id}>{props.stock.data.count}</p>
+                    <p className={'stock_p'}   id = {"countstockfold: " + props.stock.data.id}  key={"titlestockfold: " + props.stock.data.id}>{countvalue}</p>
                 </div>
                 <div className={'stockfield'}>
                     <p className={'stockplabel'}>
@@ -223,8 +162,8 @@ export function BargainStock(props: StockProps){
                     </tr>
                     </thead>
                     <tbody>
-                    {date_array.map((element,index) =><tr key={'datatr: ' + element}>
-                        <td className={'stockstablebody'}>{element}</td>
+                    {date_array.map((day,index) =><tr key={'datatr: ' + day}>
+                        <td className={'stockstablebody'}>{day}</td>
                         <td className={'stockstablebody'}>{price_array[index]}</td>
                     </tr>)}
 
@@ -232,10 +171,10 @@ export function BargainStock(props: StockProps){
                 </table>
                 <div className={'graphic'}>
                     <Line data={{
-                        labels: date_array.map(day => day),
+                        labels: date_array,
                         datasets: [
                             {
-                                data: price_array.map(day => parseFloat((day).replace('$',''))),
+                                data: price_array.map(price => parseFloat((price).replace('$',''))),
                                 label: "Курс",
                                 borderColor: "green",
                                 fill: true,

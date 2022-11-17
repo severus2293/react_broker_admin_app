@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import { Istock} from "../../Models";
 import {createStore} from "redux";
 import {
@@ -25,33 +25,87 @@ ChartJS.register(
     Legend
 )
 interface StockProps{
-    stock: Istock
+    stock: Istock,
+    socket: any
 }
 export function Stock(props: StockProps){
     const [countvalue,setCountValue] = useState(props.stock.data.count)
     const [checkvalue,setCheckValue] = useState(props.stock.data.participation)
+    const [datearray,setDatearr] = useState<string[]>([])
+    const [pricearray,setPricearr] = useState<string[]>([])
+    useEffect(()=>{
+        fetch('http://localhost:3000/stocks')
+            .then(response => response.json())
+            .then(json =>{
+                for(let stock of json){
+                    if(stock.data.id === props.stock.data.id){
+                        setCountValue(stock.data.count)
+                        setCheckValue(stock.data.participation)
+                        break
+                    }
+                }
+            })
+        props.socket.on('BargainStocks', (message) => {
+            for(let stock of message){
+                if(stock.data.id === props.stock.data.id){
+                    setCountValue(stock.data.count)
+                    setCheckValue(stock.data.participation)
+                    break
+                }
+            }
+        })
+        renderInfoArr()
+    },[])
+    function renderInfoArr(){
+        var start = props.stock.info.data[props.stock.info.data.length - 1].Date
+        var index = props.stock.info.data.length - 1
+        const datearr: string[] = []
+        const pricearr: string[] = []
+        while(index>0){
+            if(props.stock.info.data[index].Date === start){     //если есть данные о дне в таблице
+                datearr.push(start);
+                pricearr.push(props.stock.info.data[index].Open);
+                index--;
+
+            }
+            else{
+                datearr.push(start);
+                pricearr.push(pricearr[pricearr.length-1]);
+            }
+            let day = new Date(start);
+            const offset = day.getTimezoneOffset();
+            day = new Date(day.getTime() - offset * 60 * 1000);
+            day.setDate(day.getDate() + 1);
+            const tmp = day.toISOString().split('T')[0].split('-');
+            start = '' + tmp[1] + '/' + tmp[2] + '/' + tmp[0];
+        }
+        setDatearr(datearr)
+        setPricearr(pricearr)
+    }
     const ChangecountHandler = async (event: React.ChangeEvent<HTMLInputElement>) =>{
         setCountValue(JSON.parse(event.target.value))
-        if(parseInt(event.target.value) >= 0){
-            const body = {
-                id: parseInt(event.target.id.replace("countfold: " ,'')),
+        if(parseInt(event.target.value) > 0){
+            const message = {
+                id: event.target.id.replace('countfold:',''),
                 count: parseInt(event.target.value)
             }
-            const response = await axios.post<Istock>('http://localhost:3000/stocks/change_count_bargaining', body)
+            //const socket = this.$store.getters.GetSocket
+            props.socket.emit('changeCountStocks',message)
         }
     }
     const ChangeparticionHandler = async (event: React.ChangeEvent<HTMLInputElement>) =>{
-     const body = {
-         id: parseInt(event.target.id.replace("checkfold: " ,''))
-     }
-        if(event.target.checked){
-            setCheckValue(true)
+        //if(event.target.checked){
+        //    setCheckValue(true)
 
+      //  }
+       // else{
+       //     setCheckValue(false)
+       // }
+        const message = {
+            id: parseInt(event.target.id.replace("checkfold:" ,''))
         }
-        else{
-            setCheckValue(false)
-        }
-        const response = await axios.post<Istock>('http://localhost:3000/stocks/change_particion', body)
+        //const socket = this.$store.getters.GetSocket
+        props.socket.emit('changeParticipationStocks',message)
     }
     return(
         <div className={'singlestock'} key={'singlestock: ' + props.stock.data.id}>
@@ -81,7 +135,7 @@ export function Stock(props: StockProps){
                     <label className={'stockplabel'} htmlFor={'checkfold: ' + props.stock.data.id} >
                         Участие:
                     </label>
-                    <input className={'stockscheck_input'} type={'checkbox'}  id = {"checkfold: " + props.stock.data.id} defaultChecked={checkvalue} onChange={ChangeparticionHandler}/>
+                    <input className={'stockscheck_input'} type={'checkbox'}  id = {"checkfold: " + props.stock.data.id}  checked={checkvalue} onChange={ChangeparticionHandler}/>
 
                 </div>
             </div>
@@ -95,19 +149,19 @@ export function Stock(props: StockProps){
                     </tr>
                     </thead>
                     <tbody>
-                    {props.stock.info.data.slice(0).reverse().map(day =><tr key={'datatr: ' + day.Date}>
-                        <td className={'stockstablebody'}>{day.Date}</td>
-                        <td className={'stockstablebody'}>{day.Open}</td>
+                    {datearray.map((day,index) =><tr key={'datatr: ' + day}>
+                        <td className={'stockstablebody'}>{day}</td>
+                        <td className={'stockstablebody'}>{pricearray[index]}</td>
                     </tr>)}
 
                     </tbody>
                 </table>
                 <div className={'graphic'}>
                     <Line data={{
-                        labels: props.stock.info.data.slice(0).reverse().map(day => day.Date),
+                        labels: datearray,
                         datasets: [
                     {
-                        data: props.stock.info.data.slice(0).reverse().map(day => parseInt((day.Open).replace('$',''))),
+                        data: pricearray.map(price => parseFloat((price).replace('$',''))),
                         label: "Курс",
                         borderColor: "green",
                         fill: true,

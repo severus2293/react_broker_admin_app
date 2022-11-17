@@ -9,21 +9,44 @@ interface StocksProps{
     setting: Isetting
 }
 export function Bargaining_page(props: StocksProps){
-    const [timervalue, setTimerValue] = useState(props.setting.speed)
+    const [timervalue, setTimerValue] = useState()
     const [datevalue,setDateValue] = useState(''+ props.setting.start.split('-')[1] +'/'+ props.setting.start.split('-')[2] + '/'+ props.setting.start.split('-')[0])
+    const [stocks,setStocks] = useState<Istock[]>([])
+    // @ts-ignore
+    const [startvalue,setStartValue] = useState('')
+    const [settings,setSettings] = useState<Isetting>()
+    const [sock,setsocket] = useState()
+     useEffect(() => {
+        const socket = io('http://localhost:3000/usersocket')
+        // @ts-ignore
+        setsocket(socket)
+        fetch('http://localhost:3000/stocks/stocks_bargaining')
+            .then(response => response.json())
+            .then(json =>{
+                setStocks(json)
+            })
+         fetch('http://localhost:3000/settings')
+            .then(response => response.json())
+            .then(json =>{
+                setSettings(json)
+                setTimerValue(json.speed)
+                setDateValue(''+ json.start.split('-')[1] +'/'+ json.start.split('-')[2] + '/'+ json.start.split('-')[0])
+                setStartValue(''+ json.start.split('-')[1] +'/'+ json.start.split('-')[2] + '/'+ json.start.split('-')[0])
+                //console.log(startvalue)
+            })
 
-    useEffect(() => {
-        setInterval(() =>{fetchtime()
-            fetchdate()},1000)
-    }, [datevalue]);
-    async function fetchtime(){
-        const response = await  axios.get('http://localhost:3000/bargain-process/time')
-        setTimerValue(response.data)
-    }
-    async function fetchdate(){
-        const response = await  axios.get('http://localhost:3000/bargain-process/date')
-        setDateValue(response.data)
-    }
+        socket.on('ChangeTime', (message) => {
+            setTimerValue(message.speed)
+            setDateValue(message.date)
+
+        })
+         console.log(startvalue)
+        socket.on('SettingsUpdate', (message) => {
+            setStartValue(message.start);
+            setDateValue( message.end);
+            setTimerValue(message.speed);
+        })
+    }, []);
     /*useEffect(  () => {
         if (socket) {
             socket.on("log", (body) => {
@@ -58,7 +81,7 @@ export function Bargaining_page(props: StocksProps){
                     <p className={'stock_p'}   id = {"iterdat"}  key={"iterdata"}>{datevalue}</p>
                 </div>
             </div>
-            {props.stocks.map(stock =><BargainStock stock = {stock}  id = {stock.info.id} startdate={''+ props.setting.start.split('-')[1] +'/'+ props.setting.start.split('-')[2] + '/'+ props.setting.start.split('-')[0]} enddate={datevalue} />
+            {stocks.map(stock =><BargainStock stock = {stock} socket={sock}  id = {stock.info.id} startdate={''+ props.setting.start.split('-')[1] +'/'+ props.setting.start.split('-')[2] + '/'+ props.setting.start.split('-')[0]} enddate={datevalue} key={stock.info.id} />
 
             )}
 

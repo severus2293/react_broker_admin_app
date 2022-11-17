@@ -13,6 +13,7 @@ const root = ReactDOM.createRoot(
 const defaultstate = {
     count: [0,0,0,0,0,0,0,0],
     price: ['','','','','','','',''],
+    start: ''
 }
 const reducer = (state = defaultstate,action) => {
     switch (action.type){
@@ -26,6 +27,8 @@ const reducer = (state = defaultstate,action) => {
                     (val, i) => i === action.index ? action.val
                         : val
                 )}
+        case "CHANGE_START":
+            return{...state,start: action.val}
         default:
             return state
     }

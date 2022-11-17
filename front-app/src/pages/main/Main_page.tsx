@@ -4,8 +4,11 @@ import stock from '../../assets/stocks_img.png'
 import setting from '../../assets/settings_img.png'
 import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
+import {io} from "socket.io-client";
 export function Main_page(){
-
+    useEffect(()=>{
+        const socket = io('http://localhost:3000/usersocket')
+    })
     return (
 
         <div className={'flex_box'}>

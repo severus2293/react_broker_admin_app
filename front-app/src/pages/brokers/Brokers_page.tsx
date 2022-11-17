@@ -1,8 +1,9 @@
-import React, {ChangeEvent, useState} from "react";
+import React, {ChangeEvent, useEffect, useState} from "react";
 import {Broker} from "./broker";
 import {Ibroker, Istock} from "../../Models";
 import axios from "axios";
 import {Link} from "react-router-dom";
+import {io} from "socket.io-client";
 interface BrokersProps{
     brokers: Ibroker[]
 }
@@ -22,16 +23,33 @@ export function Brokers_page(props: BrokersProps){
                 name: namevalue,
                 money: parseInt(moneyvalue)
             }
-            const response = await axios.post<Ibroker>('http://localhost:3000/brokers/add_broker',broker)
-            window.location.reload()
+            setMoneyValue('')
+            setValue('')
+            // @ts-ignore
+            sock!.emit('addUser',broker)
         }
     }
     const [moneyvalue,setMoneyValue] = useState('')
+    const [sock,setsocket] = useState()
     const [namevalue,setValue] = useState('')
+    const [brokers,setBrokers] = useState<Ibroker[]>([])
     const changepriceHandler = async (event: ChangeEvent<HTMLInputElement>) => {
 
          setMoneyValue(event.target.value)
     }
+    useEffect(()=>{
+        const socket = io('http://localhost:3000/usersocket')
+        // @ts-ignore
+        setsocket(socket)
+        fetch('http://localhost:3000/brokers')
+            .then(response => response.json())
+            .then(json =>{
+                setBrokers(json)
+            })
+        socket.on('authorization_status', (message) => {
+            setBrokers(message)
+        })
+    },[])
     const changenameHandler = (event: ChangeEvent<HTMLInputElement>) => {
         setValue(event.target.value)
     }
@@ -43,7 +61,8 @@ export function Brokers_page(props: BrokersProps){
                 <button className={'exitbutton'}  id={'back'}>Назад</button>
             </Link>
             <h2>Брокеры</h2>
-            {props.brokers.map(broker =><Broker broker = {broker} butname={'Удалить'} />)}
+
+            {brokers.map(broker =><Broker broker = {broker} butname={'Удалить'} socket={sock} key={broker.id}/>)}
             <form onSubmit={submitHandler}>
             <div className={'main'}>
                 <div className="field namefield">
